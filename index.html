@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MVVM设计模式精髓,双向数据绑定</title>
+</head>
+<body>
+  <form>
+      <input id="name" data-bind="name">
+  </form>
+<script >
+    var model={name:"小米",desc:"帅的不明显"};
+    var view=document.getElementById("name");
+    Object.bind=function (model,view) {
+       //交叉关联
+//        view.model=model;
+//        model.view=view;
+        var bind=view.dataset.bind;
+        //绑定MV
+        mv(model,bind,model[bind],view);
+        //绑定VM
+        vm(view,model,bind);
+        function mv(model,prop,value,view) {
+            var setter=view.__lookupSetter__("value");
+//            var setter1=Object.getOwnPropertyDescriptor(view,'value');
+//            console.log(setter1);
+            Object.defineProperty(model,prop,{
+                set:function (nv) {
+                    value=nv;
+                    setter.call(view,nv);//渲染VIEW
+                    view.value=nv;
+                },
+                get:function () {
+                    return value;
+                }
+            });
+            model[prop]=value;
+        }
+
+        function vm(view,model,bind) {
+            view.onkeyup=function () {
+                model[bind]=this.value;
+            }
+        }
+    }
+    Object.bind(model,view);
+</script>
+</body>
+</html>
